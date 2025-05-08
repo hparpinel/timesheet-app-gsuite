@@ -27,7 +27,6 @@ A lightweight, browser-based timesheet system built entirely with Google Apps Sc
 Timesheet-App/
 ├── Index.html           # Main frontend interface
 ├── Code.gs              # Backend Apps Script logic
-├── style.css            # Optional - extracted styles
 ├── README.md
 ```
 
