@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Timesheet Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans:400,500|Roboto:300,400,400i,500,700&subset=latin,vietnamese,latin-ext,cyrillic,greek,cyrillic-ext,greek-ext" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f0ebf8;
+            font-family: 'Google Sans', sans-serif;
+        }
+        form {
+            background-color: #FFFFFF;
+            max-width: 2000px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        h1 {
+            font-weight: 400;
+            text-align: center;
+        }
+        h2 {
+            font-weight: 400;
+        }
+        label, input, select, textarea, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        label {
+            font-weight: 500;
+        }
+        .red-asterisk {
+            color: red;
+            font-weight: normal;
+        }
+        .form-section {
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            font-weight: 400;
+            font-size: 16px;
+        }
+        td {
+            font-weight: 300;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+            font-size: 16px;
+            outline: none;
+        }
+        input[type="text"]::placeholder,
+        input[type="email"]::placeholder,
+        input[type="date"]::placeholder,
+        input[type="number"]::placeholder {
+            color: #999;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus {
+            border-bottom: 2px solid #6200ea;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+        .checkbox-container input {
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .checkbox-container span {
+            font-family: inherit;
+            font-weight: normal;
+            position: relative;
+            top: -3px;
+            flex-shrink: 0;
+        }
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            height: 100px;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+            font-size: 16px;
+            outline: none;
+        }
+        textarea::placeholder {
+            color: #999;
+        }
+        textarea:focus {
+            border-bottom: 2px solid #6200ea;
+        }
+        .action-column {
+            width: 100px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 20px;
+            font-weight: normal;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button[type="button"].add-row-btn {
+            width: auto;
+            border: none;
+            background: none;
+            color: blue;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button[type="button"].add-row-btn::before {
+            content: "+ ";
+        }
+        .submit-btn {
+            width: auto;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .back-btn {
+            width: auto;
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #d32f2f;
+        }
+        .rules {
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .rules p {
+            margin: 10px 0;
+        }
+        /* Toast notification styles */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .file-upload-container {
+            width: 96px; /* about 1 inch */
+            align-items: center;
+            gap: 8px; /* small space between button and text */
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="page1">
+        <h1>Time Sheet form</h1>
+        <div class="rules">
+            <h2>How to Use This Timesheet App</h2>
+            <p>To submit your hours, enter your name and email, then select either <strong>Teaching</strong> or <strong>Admin</strong> to log your work.</p>
+            <p><span class="red-asterisk">*</span> indicates a required field.</p>
+            <p>If you're requesting a reimbursement, please upload the corresponding receipt(s).</p>
+            <p>After submitting, you’ll receive an email with a summary of your entry.</p>
+          </div>
+
+        <label for="name">Name: <span class="red-asterisk">*</span></label>
+        <input type="text" id="name" name="name" placeholder="Your name" required oninput="validateForm()" />
+
+        <label for="email">Email: <span class="red-asterisk">*</span></label>
+        <input type="email" id="email" name="email" placeholder="Your email" required oninput="validateForm()" />
+
+        <button type="button" id="enter-teaching-hours" onclick="nextPage('teaching')" disabled>Enter Teaching Hours</button>
+        <button type="button" id="enter-admin-hours" onclick="nextPage('admin')" disabled>Enter Admin Hours</button>
+    </div>
+
+    <div id="page2-teaching" class="form-section">
+        <form id="teaching-form">
+            <h2>Teaching Hours Form</h2>
+            <table id="teaching-table">
+                <thead>
+                    <tr>
+                        <th class="action-column">Entry</th>
+                        <th>Date <span class="red-asterisk">*</span></th>
+                        <th>Location of Class <span class="red-asterisk">*</span></th>
+                        <th>Hours Worked <span class="red-asterisk">*</span></th>
+                        <th>Bridge Toll Incurred?</th>
+                        <th>Reimbursement Request Amount</th>
+                        <th>Mileage Reimbursement Request </th>
+                        <th>Language Instructed <span class="red-asterisk">*</span></th>
+                        <th>Was this a Supervision?</th>
+                        <th>Was this a Substitution?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="action-column"><button type="button" onclick="removeRow(this)">Remove</button></td>
+                        <td><input type="date" name="teaching-date" required /></td>
+                        <td>
+                            <select name="teaching-location" id="teaching-location" required>
+                                <option value="">Select a location</option>
+                            </select>
+                        </td>
+                        <!-- Updated teaching-hours input to allow only whole numbers -->
+                        <td>
+                            <input
+                                type="number"
+                                name="teaching-hours"
+                                min="1"
+                                step="1"
+                                required
+                                oninput="validateHours(this, 'teaching')"
+                                placeholder="e.g., 1"
+                                aria-describedby="teaching-hours-error"
+                            />
+                            <span id="teaching-hours-error" class="error-message"></span>
+                        </td>
+                        <td><input type="checkbox" name="teaching-bridge-toll" /></td>
+                        <td><input type="number" name="teaching-reimbursement-amount" min="0" step="0.01" placeholder="0.00" /></td>
+                        <td><input type="number" name="teaching-mileage-reimbursement" min="0" step="0.01" placeholder="0.00" /></td>
+                        <td>
+                            <select name="teaching-language" id="teaching-language" required>
+                                <option value="">Select a language</option>
+                            </select>
+                        </td>
+                        <td><input type="checkbox" name="teaching-supervision" /></td>
+                        <td><input type="checkbox" name="teaching-substitution" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn" onclick="addRow('teaching')">Add Row</button>
+
+            <div class="file-upload-container">
+                <input type="file" id="attachments-teaching" name="attachments" multiple style="display:none" />
+                <button type="button" id="select-files-teaching" class="small-upload-btn">Choose Files</button>
+                <div id="file-list-teaching" class="file-list">No files selected.</div>
+            </div>
+
+            <label for="notes">Notes for HR:</label>
+            <textarea id="notes" name="notes" placeholder="Your notes"></textarea>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="e-signature" name="e-signature" required />
+                <span>I hereby certify that the above information is true and correct<span class="red-asterisk">*</span></span>
+            </div>
+            <span id="e-signature-error" class="error-message"></span>
+
+            <div class="btn-row">
+                <button type="button" class="back-btn" onclick="previousPage()">Back</button>
+                <input type="submit" class="submit-btn" id="submit-button-teaching" value="Submit" />
+            </div>
+        </form>
+    </div>
+
+    <div id="page2-admin" class="form-section">
+        <form id="admin-form">
+            <h2>Admin Hours Form</h2>
+            <table id="admin-table">
+                <thead>
+                    <tr>
+                        <th class="action-column">Entry</th>
+                        <th>Date <span class="red-asterisk">*</span></th>
+                        <th>Location <span class="red-asterisk">*</span></th>
+                        <th>Hours Worked <span class="red-asterisk">*</span></th>
+                        <th>Bridge Toll Incurred?</th>
+                        <th>Reimbursement Request Amount</th>
+                        <th>Mileage Reimbursement Request </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="action-column"><button type="button" onclick="removeRow(this)">Remove</button></td>
+                        <td><input type="date" name="admin-date" required /></td>
+                        <td><input type="text" name="admin-location" required /></td>
+                        <td>
+                            <input
+                                type="number"
+                                name="admin-hours"
+                                min="0.25"
+                                step="0.25"
+                                required
+                                oninput="validateHours(this, 'admin')"
+                                placeholder="e.g., 0.5"
+                                aria-describedby="admin-hours-error"
+                            />
+                            <span id="admin-hours-error" class="error-message"></span>
+                        </td>
+                        <td><input type="checkbox" name="admin-bridge-toll" /></td>
+                        <td><input type="number" name="admin-reimbursement-amount" min="0" step="0.01" placeholder="0.00" /></td>
+                        <td><input type="number" name="admin-mileage-reimbursement" min="0" step="0.01" placeholder="0.00" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn" onclick="addRow('admin')">Add Row</button>
+
+            <div class="file-upload-container">
+                <input type="file" id="attachments-admin" name="attachments" multiple style="display:none" />
+                <button type="button" id="select-files-admin" class="small-upload-btn">Choose Files</button>
+                <div id="file-list-admin" class="file-list">No files selected.</div>
+            </div>
+
+            <label for="notes">Notes for HR:</label>
+            <textarea id="notes" name="notes" placeholder="Your notes"></textarea>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="e-signature" name="e-signature" required />
+                <span>I hereby certify that the above information is true and correct<span class="red-asterisk">*</span></span>
+            </div>
+            <span id="e-signature-error" class="error-message"></span>
+
+            <div class="btn-row">
+                <button type="button" class="back-btn" onclick="previousPage()">Back</button>
+                <input type="submit" class="submit-btn" id="submit-button-admin" value="Submit" />
+            </div>
+        </form>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-message"></p>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast"></div>
+
+    <script>
+        let currentSection = '';
+        let EMAIL_DOMAIN = '';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            google.script.run.withSuccessHandler(function (env) {
+                EMAIL_DOMAIN = env.EMAIL_DOMAIN;
+                document.getElementById('email').addEventListener('input', validateForm);
+                validateForm(); // Run once on load
+            }).getEnv();
+        });
+
+        function getLocalToday() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = getLocalToday();
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.setAttribute('max', today);
+            });
+        });
+
+        function validateForm() {
+            const testMode = true; // Set to `false` for production
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const isEmailValid = EMAIL_DOMAIN ? email.endsWith(EMAIL_DOMAIN) : true;
+
+            const isFormValid = name.trim() !== '' && email.trim() !== '' && isEmailValid;
+
+            const emailInput = document.getElementById('email');
+            if (email === '') {
+                emailInput.setCustomValidity('Please enter your email.');
+            } else if (!isEmailValid) {
+                emailInput.setCustomValidity(`Please enter a valid email address ending with ${EMAIL_DOMAIN}.`);
+            } else {
+                emailInput.setCustomValidity('');
+            }
+
+            // Additional validation for date fields
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            const today = new Date().toISOString().split('T')[0];
+            let allDatesValid = true;
+
+            dateInputs.forEach(input => {
+                if (input.value > today) {
+                    allDatesValid = false;
+                    input.setCustomValidity('Date cannot be in the future.');
+                } else {
+                    input.setCustomValidity('');
+                }
+            });
+
+            document.getElementById('enter-teaching-hours').disabled = !isFormValid;
+            document.getElementById('enter-admin-hours').disabled = !isFormValid;
+
+            return isFormValid && allDatesValid;
+        }
+
+        function validateHours(input, type) {
+            const value = parseFloat(input.value);
+            let minVal, regex, errorMsg;
+
+            if (type === 'teaching') {
+                minVal = 1;
+                regex = /^\d+$/; // Only whole numbers
+                errorMsg = 'Hours worked must be a whole number and at least 1.';
+            } else if (type === 'admin') {
+                minVal = 0.25;
+                regex = /^\d+(\.\d{1,2})?$/; // Allow up to two decimal places
+                errorMsg = 'Please enter a valid number of hours (minimum 0.25, up to two decimal places).';
+            } else {
+                input.setCustomValidity('');
+                return;
+            }
+
+            if (value < minVal) {
+                input.setCustomValidity(errorMsg);
+                if (type === 'teaching') {
+                    document.getElementById('teaching-hours-error').textContent = errorMsg;
+                } else if (type === 'admin') {
+                    document.getElementById('admin-hours-error').textContent = errorMsg;
+                }
+            } else if (!regex.test(input.value)) {
+                input.setCustomValidity(errorMsg);
+                if (type === 'teaching') {
+                    document.getElementById('teaching-hours-error').textContent = errorMsg;
+                } else if (type === 'admin') {
+                    document.getElementById('admin-hours-error').textContent = errorMsg;
+                }
+            } else {
+                input.setCustomValidity('');
+                if (type === 'teaching') {
+                    document.getElementById('teaching-hours-error').textContent = '';
+                } else if (type === 'admin') {
+                    document.getElementById('admin-hours-error').textContent = '';
+                }
+            }
+        }
+
+        function nextPage(section) {
+            currentSection = section;
+            document.getElementById('page1').style.display = 'none';
+            document.getElementById(`page2-${section}`).style.display = 'block';
+
+            if (section === 'teaching') {
+                loadLocations('teaching-location');
+                loadLanguages('teaching-language');
+            }
+        }
+
+        function previousPage() {
+            document.getElementById(`page2-${currentSection}`).style.display = 'none';
+            document.getElementById('page1').style.display = 'block';
+        }
+
+        function addRow(section) {
+            const table = document.getElementById(`${section}-table`).getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            if (section === 'teaching') {
+                newRow.innerHTML = `
+                    <td class="action-column"><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    <td><input type="date" name="teaching-date" required /></td>
+                    <td>
+                        <select name="teaching-location" required>
+                            <option value="">Select a location</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            name="teaching-hours"
+                            min="1"
+                            step="1"
+                            required
+                            oninput="validateHours(this, 'teaching')"
+                            placeholder="e.g., 1"
+                            aria-describedby="teaching-hours-error"
+                        />
+                        <span id="teaching-hours-error" class="error-message"></span>
+                    </td>
+                    <td><input type="checkbox" name="teaching-bridge-toll" /></td>
+                    <td><input type="number" name="teaching-reimbursement-amount" min="0" step="0.01" placeholder="0.00" /></td>
+                    <td><input type="number" name="teaching-mileage-reimbursement" min="0" step="0.01" placeholder="0.00" /></td>
+                    <td>
+                        <select name="teaching-language" required>
+                            <option value="">Select a language</option>
+                        </select>
+                    </td>
+                    <td><input type="checkbox" name="teaching-supervision" /></td>
+                    <td><input type="checkbox" name="teaching-substitution" /></td>
+                `;
+                loadLocations('teaching-location', newRow);
+                loadLanguages('teaching-language', newRow);
+
+                const dateInput = newRow.querySelector('input[type="date"][name="teaching-date"]');
+                if (dateInput) {
+                    const today = getLocalToday();
+                    dateInput.setAttribute('max', today);
+                }
+            } else if (section === 'admin') {
+                newRow.innerHTML = `
+                    <td class="action-column"><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    <td><input type="date" name="admin-date" required /></td>
+                    <td><input type="text" name="admin-location" required /></td>
+                    <td>
+                        <input
+                            type="number"
+                            name="admin-hours"
+                            min="0.25"
+                            step="0.25"
+                            required
+                            oninput="validateHours(this, 'admin')"
+                            placeholder="e.g., 0.5"
+                            aria-describedby="admin-hours-error"
+                        />
+                        <span id="admin-hours-error" class="error-message"></span>
+                    </td>
+                    <td><input type="checkbox" name="admin-bridge-toll" /></td>
+                    <td><input type="number" name="admin-reimbursement-amount" min="0" step="0.01" placeholder="0.00" /></td>
+                    <td><input type="number" name="admin-mileage-reimbursement" min="0" step="0.01" placeholder="0.00" /></td>
+                `;
+                const dateInput = newRow.querySelector('input[type="date"][name="admin-date"]');
+                if (dateInput) {
+                    const today = getLocalToday();
+                    dateInput.setAttribute('max', today);
+                }
+            }
+        }
+
+        function removeRow(button) {
+            const row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function loadLocations(elementId, row = null) {
+            google.script.run.withSuccessHandler(function (locations) {
+                let select;
+                if (row) {
+                    select = row.querySelector(`select[name="${elementId}"]`);
+                } else {
+                    select = document.getElementById(elementId);
+                }
+                select.innerHTML = '<option value="">Select a location</option>';
+                locations.forEach(location => {
+                    const option = document.createElement('option');
+                    option.value = location;
+                    option.text = location;
+                    select.appendChild(option);
+                });
+            }).withFailureHandler(function (error) {
+                showModal('Error loading locations: ' + error.message);
+            }).getLocations();
+        }
+
+        function loadLanguages(elementId, row = null) {
+            google.script.run.withSuccessHandler(function (languages) {
+                let select;
+                if (row) {
+                    select = row.querySelector(`select[name="${elementId}"]`);
+                } else {
+                    select = document.getElementById(elementId);
+                }
+                select.innerHTML = '<option value="">Select a language</option>';
+                languages.forEach(language => {
+                    const option = document.createElement('option');
+                    option.value = language;
+                    option.text = language;
+                    select.appendChild(option);
+                });
+            }).withFailureHandler(function (error) {
+                showModal('Error loading languages: ' + error.message);
+            }).getLanguages();
+        }
+
+        function showModal(message) {
+            const modal = document.getElementById('myModal');
+            const modalMessage = document.getElementById('modal-message');
+            modalMessage.textContent = message;
+            modal.style.display = 'block';
+
+            const span = document.getElementsByClassName('close')[0];
+            span.onclick = function () {
+                modal.style.display = 'none';
+                enableSubmitButton();
+            };
+
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    enableSubmitButton();
+                }
+            };
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'show';
+            setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 3000);
+        }
+
+        function disableSubmitButton(section) {
+            document.getElementById(`submit-button-${section}`).disabled = true;
+        }
+
+        function enableSubmitButton(section) {
+            document.getElementById(`submit-button-${section}`).disabled = false;
+        }
+
+        document.getElementById('teaching-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            disableSubmitButton('teaching');
+
+            const form = event.target;
+            const files = teachingSelectedFiles;
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                timesheetEntries: [],
+                type: 'teaching',
+                notes: document.getElementById('notes').value,
+                attachments: []
+            };
+
+            const rows = document.querySelectorAll('#teaching-table tbody tr');
+            rows.forEach(row => {
+                data.timesheetEntries.push({
+                    date: row.querySelector('input[name="teaching-date"]').value,
+                    location: row.querySelector('select[name="teaching-location"]').value,
+                    hours: row.querySelector('input[name="teaching-hours"]').value,
+                    bridgeToll: row.querySelector('input[name="teaching-bridge-toll"]').checked,
+                    reimbursementAmount: row.querySelector('input[name="teaching-reimbursement-amount"]').value || 0,
+                    mileageReimbursement: row.querySelector('input[name="teaching-mileage-reimbursement"]').value || 0,
+                    language: row.querySelector('select[name="teaching-language"]').value,
+                    supervision: row.querySelector('input[name="teaching-supervision"]').checked,
+                    substitution: row.querySelector('input[name="teaching-substitution"]').checked
+                });
+            });
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    data.attachments.push({
+                        name: file.name,
+                        mimeType: file.type,
+                        base64: reader.result.split(',')[1]
+                    });
+
+                    if (data.attachments.length === files.length) {
+                        google.script.run
+                            .withSuccessHandler(function (response) {
+                                console.log('Teaching form submitted successfully');
+                                showToast(response.message);
+                                form.reset();
+                                document.getElementById('page1').style.display = 'block';
+                                document.getElementById('page2-teaching').style.display = 'none';
+                                enableSubmitButton('teaching');
+                                currentSection = '';
+                                teachingSelectedFiles = [];
+                                document.getElementById('file-list-teaching').innerHTML = 'No files selected.';
+                            })
+                            .withFailureHandler(function (error) {
+                                showModal('An error occurred: ' + error.message);
+                                enableSubmitButton('teaching');
+                            })
+                            .submitTimesheet(data);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            if (files.length === 0) {
+                google.script.run
+                    .withSuccessHandler(function (response) {
+                        showToast(response.message);
+                        form.reset();
+                        document.getElementById('page1').style.display = 'block';
+                        document.getElementById('page2-teaching').style.display = 'none';
+                        enableSubmitButton('teaching');
+                        currentSection = '';
+                        teachingSelectedFiles = [];
+                        document.getElementById('file-list-teaching').innerHTML = 'No files selected.';
+                    })
+                    .withFailureHandler(function (error) {
+                        showModal('An error occurred: ' + error.message);
+                        enableSubmitButton('teaching');
+                    })
+                    .submitTimesheet(data);
+            }
+        });
+
+        document.getElementById('admin-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            disableSubmitButton('admin');
+
+            const form = event.target;
+            const files = adminSelectedFiles;
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                timesheetEntries: [],
+                type: 'admin',
+                notes: document.getElementById('notes').value,
+                attachments: []
+            };
+
+            const rows = document.querySelectorAll('#admin-table tbody tr');
+            rows.forEach(row => {
+                data.timesheetEntries.push({
+                    date: row.querySelector('input[name="admin-date"]').value,
+                    location: row.querySelector('input[name="admin-location"]').value,
+                    hours: row.querySelector('input[name="admin-hours"]').value,
+                    bridgeToll: row.querySelector('input[name="admin-bridge-toll"]').checked,
+                    reimbursementAmount: row.querySelector('input[name="admin-reimbursement-amount"]').value || 0,
+                    mileageReimbursement: row.querySelector('input[name="admin-mileage-reimbursement"]').value || 0
+                });
+            });
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    data.attachments.push({
+                        name: file.name,
+                        mimeType: file.type,
+                        base64: reader.result.split(',')[1]
+                    });
+
+                    if (data.attachments.length === files.length) {
+                        google.script.run
+                            .withSuccessHandler(function (response) {
+                                console.log('Admin form submitted successfully');
+                                showToast(response.message);
+                                form.reset();
+                                document.getElementById('page1').style.display = 'block';
+                                document.getElementById('page2-admin').style.display = 'none';
+                                enableSubmitButton('admin');
+                                currentSection = '';
+                                adminSelectedFiles = [];
+                                document.getElementById('file-list-admin').innerHTML = 'No files selected.';
+                            })
+                            .withFailureHandler(function (error) {
+                                showModal('An error occurred: ' + error.message);
+                                enableSubmitButton('admin');
+                            })
+                            .submitTimesheet(data);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            if (files.length === 0) {
+                google.script.run
+                    .withSuccessHandler(function (response) {
+                        showToast(response.message);
+                        form.reset();
+                        document.getElementById('page1').style.display = 'block';
+                        document.getElementById('page2-admin').style.display = 'none';
+                        enableSubmitButton('admin');
+                        currentSection = '';
+                        adminSelectedFiles = [];
+                        document.getElementById('file-list-admin').innerHTML = 'No files selected.';
+                    })
+                    .withFailureHandler(function (error) {
+                        showModal('An error occurred: ' + error.message);
+                        enableSubmitButton('admin');
+                    })
+                    .submitTimesheet(data);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadLocations('teaching-location');
+            loadLanguages('teaching-language');
+        });
+
+        document.getElementById('select-files-teaching').addEventListener('click', function () {
+            document.getElementById('attachments-teaching').click();
+        });
+
+        document.getElementById('select-files-admin').addEventListener('click', function () {
+            document.getElementById('attachments-admin').click();
+        });
+
+        let teachingSelectedFiles = [];
+        document.getElementById('attachments-teaching').addEventListener('change', function () {
+            const fileList = document.getElementById('file-list-teaching');
+            const files = Array.from(this.files);
+            teachingSelectedFiles = teachingSelectedFiles.concat(files);
+            fileList.innerHTML = '';
+            if (teachingSelectedFiles.length === 0) {
+                fileList.textContent = 'No files selected.';
+            } else {
+                const ul = document.createElement('ul');
+                teachingSelectedFiles.forEach((file, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = file.name + ' ';
+                    const removeSpan = document.createElement('span');
+                    removeSpan.textContent = '✖';
+                    removeSpan.title = 'Remove file';
+                    removeSpan.style.marginLeft = '8px';
+                    removeSpan.style.color = 'red';
+                    removeSpan.style.cursor = 'pointer';
+                    removeSpan.style.fontWeight = 'bold';
+                    removeSpan.style.userSelect = 'none';
+                    removeSpan.style.fontSize = '14px';
+                    removeSpan.onclick = function () {
+                        teachingSelectedFiles.splice(index, 1);
+                        const event = new Event('change');
+                        document.getElementById('attachments-teaching').dispatchEvent(event);
+                    };
+                    li.appendChild(removeSpan);
+                    ul.appendChild(li);
+                });
+                fileList.appendChild(ul);
+            }
+            this.value = '';
+        });
+
+        let adminSelectedFiles = [];
+        document.getElementById('attachments-admin').addEventListener('change', function () {
+            const fileList = document.getElementById('file-list-admin');
+            const files = Array.from(this.files);
+            adminSelectedFiles = adminSelectedFiles.concat(files);
+            fileList.innerHTML = '';
+            if (adminSelectedFiles.length === 0) {
+                fileList.textContent = 'No files selected.';
+            } else {
+                const ul = document.createElement('ul');
+                adminSelectedFiles.forEach((file, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = file.name + ' ';
+                    const removeSpan = document.createElement('span');
+                    removeSpan.textContent = '✖';
+                    removeSpan.title = 'Remove file';
+                    removeSpan.style.marginLeft = '8px';
+                    removeSpan.style.color = 'red';
+                    removeSpan.style.cursor = 'pointer';
+                    removeSpan.style.fontWeight = 'bold';
+                    removeSpan.style.userSelect = 'none';
+                    removeSpan.style.fontSize = '14px';
+                    removeSpan.onclick = function () {
+                        adminSelectedFiles.splice(index, 1);
+                        const event = new Event('change');
+                        document.getElementById('attachments-admin').dispatchEvent(event);
+                    };
+                    li.appendChild(removeSpan);
+                    ul.appendChild(li);
+                });
+                fileList.appendChild(ul);
+            }
+            this.value = '';
+        });
+    </script>
+</body>
+</html>
